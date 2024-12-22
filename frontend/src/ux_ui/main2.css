@@ -1,0 +1,129 @@
+.login_form {
+    z-index: 10;
+    width: 20%;
+    height: 40%;
+    position: relative;
+    left: 37%;
+    top: 30%;
+    border-radius: 20px;
+    border: 5px solid aqua;
+    user-select: none;
+    box-shadow: 0 0 10px 2px aqua;
+}
+
+.h3_1 {
+    color: blueviolet;
+    position: absolute;
+    font-size: 25px;
+    left: 3%;
+}
+
+.h3_1_1 {
+    border: 3px solid blueviolet;
+    border-radius: 10px;
+    position: absolute;
+    font-size: 25px;
+    padding: 5px 10px;
+    color: #121213;
+    background-color: blueviolet;
+    box-shadow: 0 0 10px 2px blueviolet;
+    left: 3%;
+    top: -10px;
+}
+
+.h3_2 {
+    color: blueviolet;
+    position: absolute;
+    right: 3%;
+    font-size: 25px;
+}
+
+.h3_2_1 {
+    border: 3px solid blueviolet;
+    background-color: blueviolet;
+    border-radius: 10px;
+    position: absolute;
+    font-size: 25px;
+    padding: 5px 10px;
+    color: #121213;
+    box-shadow: 0 0 10px 2px blueviolet;
+    right: 3%;
+    top: -10px;
+}
+
+.input {
+    position: absolute;
+    left: 3%;
+    height: 35px;
+    width: 90%;
+    border-radius: 10px;
+    font-size: 25px;
+    background-color: #121213;
+    color: aqua;
+    border: 5px solid blueviolet;
+}
+
+.bnt_login_form {
+    position: absolute;
+    left: 3%;
+    height: 45px;
+    width: 94%;
+    border-radius: 10px;
+    top: 78%;
+    font-size: 18px;
+    background-color: blueviolet;
+    color: #121213;
+    border: 5px solid blueviolet;
+    box-shadow: 0 0 10px 2px blueviolet;
+    transition: 0.7s;
+}
+
+.dop_styles {
+    top: 85%;
+}
+
+.top1 {
+    top: 38%;
+}
+
+.top2 {
+    top: 58%;
+}
+
+.top1_1 {
+    top: 25%;
+}
+
+.top2_2 {
+    top: 40%;
+}
+
+.top3 {
+    top: 55%;
+}
+
+.top4 {
+    top: 70%;
+}
+
+.h3_2:hover {
+    cursor: pointer;
+}
+
+.h3_1:hover {
+    cursor: pointer;
+}
+
+.reg_form {
+    height: 60%;
+    top: 20%;
+}
+
+.bnt_login_form:hover {
+    cursor: pointer;
+    transform: scale(0.95);
+}
+
+.input::placeholder {
+    color: #676769;
+}
