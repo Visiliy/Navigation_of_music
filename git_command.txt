@@ -1,0 +1,5 @@
+git init
+git add // для добавления в git новой папки или файла
+git pull // для обновления кода из github
+git commit -am "comment"
+git push -u origin main // отправка изменений в github
