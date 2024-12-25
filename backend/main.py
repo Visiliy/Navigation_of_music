@@ -12,7 +12,7 @@ def get_music():
 
 
 @app.route("/get_music", methods=["POST"])
-def get_music():
+def get_music2():
     try:
         content = request.files["audio"].read()
         with open(f"media_files/audioToSave{randrange(1, 100000000)}.mp3", "wb") as fh:

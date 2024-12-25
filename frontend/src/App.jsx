@@ -1,13 +1,14 @@
 import { useState } from "react";
+import axios from "axios";
 import "./ux_ui/main.css";
 import "./ux_ui/main2.css";
 import "./ux_ui/sending_audio_form.css";
-//import sendingMusic from "./modules/sendingMusic";
 
 function App() {
     const [openForm, setOpenForm] = useState(true);
     const [openRegForm, setOpenRegForm] = useState(false);
     const [sending, setSending] = useState(false);
+    const [response, setResponse] = useState("");
 
     const openLoginForm = () => {
         if (openRegForm) {
@@ -22,8 +23,43 @@ function App() {
 
     const sendAudioContentToServer = () => {
         setSending(true);
-        //const answer = sendingMusic();
-        //console.log(answer, "100");
+
+        let mediaRecorder;
+        let audioChunks = [];
+
+        async function getAudio() {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+            });
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
+                audioChunks = [];
+                const formData = new FormData();
+                formData.append("audio", audioBlob);
+                axios
+                    .post("http://127.0.0.1:8070/get_music", formData)
+                    .then((response) => {
+                        setResponse(response);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            };
+
+            mediaRecorder.start();
+        }
+        getAudio();
+        const stopRecords = () => {
+            mediaRecorder.stop();
+            setSending(false);
+        };
+        setTimeout(stopRecords, 15000);
     };
 
     var close_form = "display_none";
@@ -32,7 +68,6 @@ function App() {
     var not_fon = "";
     var close_reg_form = "display_none";
     var close_send_form = "display_none";
-
     if (!openForm) {
         close_form = "";
         close_playe1 = "display_none";

@@ -19,7 +19,7 @@
     border-radius: 15px;
     background-color: #121213;
     box-shadow: 0 0 10px 2px aqua;
-    transition: 0.4s;
+    transition: 0.6s;
     color: aqua;
     right: 0;
 }
@@ -36,7 +36,7 @@
     color: blueviolet;
     border: 5px solid blueviolet;;
     box-shadow: 0 0 10px 2px blueviolet;
-    transition: 0.4s;
+    transition: 0.6s;
     border-radius: 15px;
 }
 
@@ -112,7 +112,6 @@
     margin-left: 20px;
     position: absolute;
     border-radius: 15px;
-    text-shadow: 0 0 20px blueviolet;
     border: 5px solid blueviolet;;
     box-shadow: 0 0 10px 2px blueviolet;
 }
@@ -120,6 +119,7 @@
 .text {
     font-size: 30px;
     color: blueviolet;
+    text-shadow: 0 0 20px blueviolet;
 }
 
 .display_none {
