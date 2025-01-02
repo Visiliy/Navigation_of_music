@@ -3,12 +3,53 @@ import axios from "axios";
 import "./ux_ui/main.css";
 import "./ux_ui/main2.css";
 import "./ux_ui/sending_audio_form.css";
+import Name from "./components/name";
 
 function Page1() {
     const [openForm, setOpenForm] = useState(true);
     const [openRegForm, setOpenRegForm] = useState(false);
     const [sending, setSending] = useState(false);
     const [response, setResponse] = useState("");
+
+    const [nickname1, setNickname1] = useState("");
+    const [password1, setPassword1] = useState("");
+
+    const [name, setName] = useState("");
+    const [nickname2, setNickname2] = useState("");
+    const [password2_1, setPassword2_1] = useState("");
+    const [password2_2, setPassword2_2] = useState("");
+
+    const login = () => {
+        openLoginForm();
+        var data = [nickname1, password1];
+        setNickname1("");
+        setPassword1("");
+        axios
+            .post("http://127.0.0.1:8070/login_user", data)
+            .then((response) => {
+                console.log(response.statusText);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    const registration = () => {
+        if (password2_1 == password2_2) {
+            openLoginForm();
+            var data = [name, nickname2, password2_1];
+            axios
+                .post("http://127.0.0.1:8070/user_registration", data)
+                .then((response) => {
+                    console.log(response.statusText);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        } else {
+            alert("Пароли не совпадают");
+        }
+    };
 
     const openLoginForm = () => {
         if (openRegForm) {
@@ -88,7 +129,7 @@ function Page1() {
     return (
         <div className={`main ${not_fon}`}>
             <div className="left">
-                <h1 className="name">Navigation of music</h1>
+                <Name></Name>
                 <div className="slogan">
                     <center>
                         <h2 className="text">
@@ -131,9 +172,17 @@ function Page1() {
                 <h3 className="h3_2" onClick={openRegistrationsForm}>
                     Регистрация
                 </h3>
-                <input className="input top1" placeholder="Имя"></input>
-                <input className="input top2" placeholder="Никнейм"></input>
-                <button className="bnt_login_form" onClick={openLoginForm}>
+                <input
+                    className="input top1"
+                    onChange={(e) => setNickname1(e.target.value)}
+                    placeholder="Никнейм"
+                ></input>
+                <input
+                    className="input top2"
+                    onChange={(e) => setPassword1(e.target.value)}
+                    placeholder="Пароль"
+                ></input>
+                <button className="bnt_login_form" onClick={login}>
                     Войти
                 </button>
             </div>
@@ -142,16 +191,29 @@ function Page1() {
                     Вход
                 </h3>
                 <h3 className="h3_2_1">Регистрация</h3>
-                <input className="input top1_1" placeholder="Имя"></input>
-                <input className="input top2_2" placeholder="Никнейм"></input>
-                <input className="input top3" placeholder="Пароль"></input>
+                <input
+                    className="input top1_1"
+                    placeholder="Имя"
+                    onChange={(e) => setName(e.target.value)}
+                ></input>
+                <input
+                    className="input top2_2"
+                    placeholder="Никнейм"
+                    onChange={(e) => setNickname2(e.target.value)}
+                ></input>
+                <input
+                    className="input top3"
+                    placeholder="Пароль"
+                    onChange={(e) => setPassword2_1(e.target.value)}
+                ></input>
                 <input
                     className="input top4"
                     placeholder="Повторите пароль"
+                    onChange={(e) => setPassword2_2(e.target.value)}
                 ></input>
                 <button
                     className="bnt_login_form dop_styles"
-                    onClick={openLoginForm}
+                    onClick={registration}
                 >
                     Зарегистрироваться
                 </button>
