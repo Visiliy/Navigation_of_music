@@ -3,7 +3,7 @@ from flask_cors import CORS
 from random import randrange
 from flask_sqlalchemy import SQLAlchemy
 
-from services import UserAuthorization
+from services.UserAuthorization import UserAuthorization
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = (
@@ -37,9 +37,13 @@ def login_user():
 @app.route("/user_registration", methods=["POST"])
 def user_registration():
     try:
+        print("YES")
         req = request.get_json()
-        print(req)
-        return jsonify("Ok2", 200)
+        ans = UserAuthorization.registaration(Users, db, req[0], req[1], req[2])
+        print(ans, req)
+        if ans:
+            return jsonify(True, 200)
+        return jsonify(False, 200)
     except:
         return "No"
 

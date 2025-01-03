@@ -1,15 +1,22 @@
 class UserAuthorization:
 
-    def login(database_name, nickname, password):
+    def login(db_name, nickname, password):
         pass
 
-    def registaration(database_name, nickname, name, password):
-        pass
+    def registaration(db_name, db, name, nickname, password) -> bool:
+        if UserAuthorization.unique_data(db_name, nickname):
+            return False
+        users = db_name(name=name, nickname=nickname, password=password)
+        db.session.add(users)
+        db.session.flush()
+        db.session.commit()
+        return True
 
-    @classmethod
-    def __data_is_true(database_name, nickname, password):
-        pass
+    def data_is_true(db_name, nickname, password):
+        return "45"
 
-    @classmethod
-    def __unique_data(database_name, nickname):
-        pass
+    def unique_data(db_name, nickname):
+        if db_name.query.filter_by(nickname=nickname).first():
+            return False
+        else:
+            return True

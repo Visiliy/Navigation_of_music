@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./ux_ui/main.css";
 import "./ux_ui/main2.css";
+import "./ux_ui/btn1.css";
 import "./ux_ui/sending_audio_form.css";
 import Name from "./components/name";
 
@@ -20,34 +21,40 @@ function Page1() {
     const [password2_2, setPassword2_2] = useState("");
 
     const login = () => {
-        openLoginForm();
         var data = [nickname1, password1];
-        setNickname1("");
-        setPassword1("");
         axios
             .post("http://127.0.0.1:8070/login_user", data)
             .then((response) => {
                 console.log(response.statusText);
+                openLoginForm();
             })
             .catch((error) => {
                 console.log(error);
+                alert("Ошибка на сервере или проблема с интернетом");
             });
     };
 
     const registration = () => {
-        if (password2_1 == password2_2) {
-            openLoginForm();
+        if (
+            password2_1 == password2_2 &&
+            password2_1 != "" &&
+            name != "" &&
+            nickname2 != "" &&
+            password2_2 != ""
+        ) {
             var data = [name, nickname2, password2_1];
             axios
                 .post("http://127.0.0.1:8070/user_registration", data)
                 .then((response) => {
                     console.log(response.statusText);
+                    openLoginForm();
                 })
                 .catch((error) => {
                     console.log(error);
+                    alert("Ошибка на сервере или проблема с интернетом");
                 });
         } else {
-            alert("Пароли не совпадают");
+            alert("Пароли не совпадают или введено пустое значение");
         }
     };
 
@@ -106,6 +113,7 @@ function Page1() {
     var close_form = "display_none";
     var close_playe1 = "";
     var close_playe2 = "";
+    var close_playe3 = "display_none";
     var not_fon = "";
     var close_reg_form = "display_none";
     var close_send_form = "display_none";
@@ -113,11 +121,13 @@ function Page1() {
         close_form = "";
         close_playe1 = "display_none";
         not_fon = "main_2_0";
+        close_playe3 = "";
     }
 
     if (openRegForm && not_fon != "") {
         close_reg_form = "";
         close_form = "display_none";
+        close_playe3 = "";
     }
 
     if (sending) {
@@ -152,6 +162,13 @@ function Page1() {
                     onClick={openLoginForm}
                 >
                     Войти
+                </button>
+                <button
+                    className={`btn1 ${close_playe3}`}
+                    style={{ zIndex: 10 }}
+                    onClick={openLoginForm}
+                >
+                    Назад
                 </button>
             </div>
             <button className="about">О проекте</button>
