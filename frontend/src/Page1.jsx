@@ -5,6 +5,7 @@ import "./ux_ui/main2.css";
 import "./ux_ui/btn1.css";
 import "./ux_ui/sending_audio_form.css";
 import Name from "./components/name";
+import getCookie from "./modules/getCookie";
 
 function Page1() {
     const [openForm, setOpenForm] = useState(true);
@@ -25,7 +26,7 @@ function Page1() {
         axios
             .post("http://127.0.0.1:8070/login_user", data)
             .then((response) => {
-                console.log(response.statusText);
+                console.log(response.data[0]);
                 openLoginForm();
             })
             .catch((error) => {
@@ -46,8 +47,17 @@ function Page1() {
             axios
                 .post("http://127.0.0.1:8070/user_registration", data)
                 .then((response) => {
-                    console.log(response.statusText);
-                    openLoginForm();
+                    console.log(response.data[0]);
+                    let ans = response.data[0];
+                    if (ans[0] == false && ans[1] == false) {
+                        alert("Такой никнейм есть, придумайте новый");
+                    } else if (ans[0] == false && ans[1] == true) {
+                        alert("Ошибка на сервере");
+                    } else {
+                        document.cookie = `nickname=${nickname2};max-age=2592000`;
+                        document.cookie = `name=${name};max-age=2592000`;
+                        openLoginForm();
+                    }
                 })
                 .catch((error) => {
                     console.log(error);
@@ -68,6 +78,10 @@ function Page1() {
     const openRegistrationsForm = () => {
         setOpenRegForm(!openRegForm);
     };
+
+    const toHome = () => {
+        window.location.href = "/home";
+    }
 
     const sendAudioContentToServer = () => {
         setSending(true);
@@ -110,6 +124,9 @@ function Page1() {
         setTimeout(stopRecords, 15000);
     };
 
+
+    console.log(getCookie("nickname"));
+
     var close_form = "display_none";
     var close_playe1 = "";
     var close_playe2 = "";
@@ -117,6 +134,9 @@ function Page1() {
     var not_fon = "";
     var close_reg_form = "display_none";
     var close_send_form = "display_none";
+    var close_playe4 = "display_none";
+    var close_btn = "";
+
     if (!openForm) {
         close_form = "";
         close_playe1 = "display_none";
@@ -128,12 +148,18 @@ function Page1() {
         close_reg_form = "";
         close_form = "display_none";
         close_playe3 = "";
+        close_playe4 = "display_none";
     }
 
     if (sending) {
         not_fon = "main_2_0";
         close_send_form = "";
         close_playe2 = "display_none";
+    }
+
+    if (getCookie("nickname") != undefined) {
+        close_playe4 = "";
+        close_btn = "display_none";
     }
 
     return (
@@ -158,7 +184,7 @@ function Page1() {
             <div className="right_block">
                 <img src="src/img/i.jpg" className="img"></img>
                 <button
-                    className={`btn1 ${close_playe1}`}
+                    className={`btn1 ${close_playe1} ${close_btn}`}
                     onClick={openLoginForm}
                 >
                     Войти
@@ -169,6 +195,13 @@ function Page1() {
                     onClick={openLoginForm}
                 >
                     Назад
+                </button>
+                <button
+                    className={`btn1 ${close_playe4}`}
+                    style={{ zIndex: 10 }}
+                    onClick={toHome}
+                >
+                    Аккаунт
                 </button>
             </div>
             <button className="about">О проекте</button>

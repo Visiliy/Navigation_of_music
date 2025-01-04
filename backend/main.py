@@ -3,8 +3,6 @@ from flask_cors import CORS
 from random import randrange
 from flask_sqlalchemy import SQLAlchemy
 
-from services.UserAuthorization import UserAuthorization
-
 app = Flask(__name__)
 app.config["SECRET_KEY"] = (
     "5457fae2a71f9331bf4bf3dd6813f90abeb33839f4608755ce301b9321c671791673817685w47uer6uuu"
@@ -37,15 +35,18 @@ def login_user():
 @app.route("/user_registration", methods=["POST"])
 def user_registration():
     try:
-        print("YES")
         req = request.get_json()
-        ans = UserAuthorization.registaration(Users, db, req[0], req[1], req[2])
-        print(ans, req)
-        if ans:
-            return jsonify(True, 200)
-        return jsonify(False, 200)
+        if Users.query.filter_by(nickname=req[1]).first():
+            print("OK1")
+            return jsonify([False, False], 200)
+        users = Users(name=req[0], nickname=req[1], password=req[2])
+        db.session.add(users)
+        db.session.flush()
+        db.session.commit()
+        print("OK2")
+        return jsonify([True, True], 200)
     except:
-        return "No"
+        return jsonify([False, True], 200)
 
 
 @app.route("/get_music", methods=["GET"])
@@ -67,6 +68,11 @@ def get_music2():
 def main():
     # with app.app_context():
     #     db.create_all()
+    # users = Users(name="name", nickname="nickname", password="password")
+    # db.session.add(users)
+    # db.session.flush()
+    # db.session.commit()
+    # print(Users.query.filter_by(nickname="nickname").first())
     app.run(port=8070)
 
 
