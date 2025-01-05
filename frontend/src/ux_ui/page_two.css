@@ -37,7 +37,7 @@
 .span {
     position: absolute;
     color: aqua;
-    margin-left: 35%;
+    left: 35%;
     font-size: 40px;
     top: 10%;
 }

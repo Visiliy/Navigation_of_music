@@ -26,10 +26,15 @@ class Users(db.Model):
 def login_user():
     try:
         req = request.get_json()
-        print(req)
-        return jsonify("Ok", 200)
+        user = Users.query.filter_by(nickname=req[0]).first()
+        if user:
+            if user.password == req[1]:
+                return jsonify([True, True, user.name], 200)
+            else:
+                return jsonify([False, False, ""], 200)
+        return jsonify([True, False, ""], 200)
     except:
-        return "No"
+        return jsonify([False, True, ""], 200)
 
 
 @app.route("/user_registration", methods=["POST"])
@@ -37,13 +42,11 @@ def user_registration():
     try:
         req = request.get_json()
         if Users.query.filter_by(nickname=req[1]).first():
-            print("OK1")
             return jsonify([False, False], 200)
         users = Users(name=req[0], nickname=req[1], password=req[2])
         db.session.add(users)
         db.session.flush()
         db.session.commit()
-        print("OK2")
         return jsonify([True, True], 200)
     except:
         return jsonify([False, True], 200)

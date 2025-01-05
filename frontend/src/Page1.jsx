@@ -27,7 +27,19 @@ function Page1() {
             .post("http://127.0.0.1:8070/login_user", data)
             .then((response) => {
                 console.log(response.data[0]);
-                openLoginForm();
+                let ans = response.data[0];
+                if (ans[0] == false && ans[1] == false) {
+                    alert("Неверный пароль");
+                } else if (ans[0] == false && ans[1] == true) {
+                    alert("Ошибка на сервере");
+                } else if (ans[0] == true && ans[1] == true) {
+                    document.cookie = `nickname=${nickname1};max-age=2592000`;
+                    document.cookie = `name=${ans[2]};max-age=2592000`;
+                    openLoginForm();
+                } else {
+                    alert("Нет такого аккаунта");
+                }
+                
             })
             .catch((error) => {
                 console.log(error);
@@ -38,10 +50,10 @@ function Page1() {
     const registration = () => {
         if (
             password2_1 == password2_2 &&
-            password2_1 != "" &&
-            name != "" &&
-            nickname2 != "" &&
-            password2_2 != ""
+            password2_1.split(" ").length == 1 && password2_1 != "" &&
+            name.split(" ").length == 1 && name != "" &&
+            nickname2.split(" ").length == 1 && nickname2 != "" &&
+            password2_2.split(" ").length == 1 && password2_2 != ""
         ) {
             var data = [name, nickname2, password2_1];
             axios
@@ -64,7 +76,7 @@ function Page1() {
                     alert("Ошибка на сервере или проблема с интернетом");
                 });
         } else {
-            alert("Пароли не совпадают или введено пустое значение");
+            alert("Пароли не совпадают или введено недопустимое значение");
         }
     };
 
@@ -81,7 +93,7 @@ function Page1() {
 
     const toHome = () => {
         window.location.href = "/home";
-    }
+    };
 
     const sendAudioContentToServer = () => {
         setSending(true);
@@ -123,9 +135,6 @@ function Page1() {
         };
         setTimeout(stopRecords, 15000);
     };
-
-
-    console.log(getCookie("nickname"));
 
     var close_form = "display_none";
     var close_playe1 = "";
