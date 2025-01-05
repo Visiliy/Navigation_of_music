@@ -85,8 +85,8 @@ class Sound:
 
 
 # Пример использования
-s = Sound('dddd.wav')
-print(s.get_average_pitches())
+# s = Sound('dddd.wav')
+# print(s.get_average_pitches())
 
 
 @app.route("/login_user", methods=["POST"])
