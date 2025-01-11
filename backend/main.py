@@ -2,6 +2,7 @@ from flask import *
 from flask_cors import CORS
 from random import randrange
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 import librosa
 import numpy as np
 
@@ -17,7 +18,7 @@ CORS(app)
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(30))
+    name = db.Column(db.String(10))
     nickname = db.Column(db.String(30))
     password = db.Column(db.String())
 
@@ -95,7 +96,7 @@ def login_user():
         req = request.get_json()
         user = Users.query.filter_by(nickname=req[0]).first()
         if user:
-            if user.password == req[1]:
+            if check_password_hash(user.password, req[1]):
                 return jsonify([True, True, user.name], 200)
             else:
                 return jsonify([False, False, ""], 200)
@@ -110,7 +111,7 @@ def user_registration():
         req = request.get_json()
         if Users.query.filter_by(nickname=req[1]).first():
             return jsonify([False, False], 200)
-        users = Users(name=req[0], nickname=req[1], password=req[2])
+        users = Users(name=req[0], nickname=req[1], password=generate_password_hash(req[2]))
         db.session.add(users)
         db.session.flush()
         db.session.commit()
@@ -136,8 +137,8 @@ def get_music2():
 
 
 def main():
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
     # users = Users(name="name", nickname="nickname", password="password")
     # db.session.add(users)
     # db.session.flush()

@@ -240,6 +240,7 @@ function Page1() {
                     className="input top2"
                     onChange={(e) => setPassword1(e.target.value)}
                     placeholder="Пароль"
+                    type="password"
                 ></input>
                 <button className="bnt_login_form" onClick={login}>
                     Войти
@@ -254,6 +255,7 @@ function Page1() {
                     className="input top1_1"
                     placeholder="Имя"
                     onChange={(e) => setName(e.target.value)}
+                    maxLength={10}
                 ></input>
                 <input
                     className="input top2_2"
@@ -261,11 +263,13 @@ function Page1() {
                     onChange={(e) => setNickname2(e.target.value)}
                 ></input>
                 <input
+                    type="password"
                     className="input top3"
                     placeholder="Пароль"
                     onChange={(e) => setPassword2_1(e.target.value)}
                 ></input>
                 <input
+                    type="password"
                     className="input top4"
                     placeholder="Повторите пароль"
                     onChange={(e) => setPassword2_2(e.target.value)}
