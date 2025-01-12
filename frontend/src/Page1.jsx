@@ -39,7 +39,6 @@ function Page1() {
                 } else {
                     alert("Нет такого аккаунта");
                 }
-                
             })
             .catch((error) => {
                 console.log(error);
@@ -50,10 +49,14 @@ function Page1() {
     const registration = () => {
         if (
             password2_1 == password2_2 &&
-            password2_1.split(" ").length == 1 && password2_1 != "" &&
-            name.split(" ").length == 1 && name != "" &&
-            nickname2.split(" ").length == 1 && nickname2 != "" &&
-            password2_2.split(" ").length == 1 && password2_2 != ""
+            password2_1.split(" ").length == 1 &&
+            password2_1 != "" &&
+            name.split(" ").length == 1 &&
+            name != "" &&
+            nickname2.split(" ").length == 1 &&
+            nickname2 != "" &&
+            password2_2.split(" ").length == 1 &&
+            password2_2 != ""
         ) {
             var data = [name, nickname2, password2_1];
             axios
@@ -96,44 +99,51 @@ function Page1() {
     };
 
     const sendAudioContentToServer = () => {
-        setSending(true);
+        if (getCookie("name") == undefined) {
+            alert("Вы не авторизовались");
+        } else {
+            setSending(true);
 
-        let mediaRecorder;
-        let audioChunks = [];
+            let mediaRecorder;
+            let audioChunks = [];
 
-        async function getAudio() {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
-            });
-            mediaRecorder = new MediaRecorder(stream);
+            async function getAudio() {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                });
+                mediaRecorder = new MediaRecorder(stream);
 
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-            };
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
 
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
-                audioChunks = [];
-                const formData = new FormData();
-                formData.append("audio", audioBlob);
-                axios
-                    .post("http://127.0.0.1:8070/get_music", formData)
-                    .then((response) => {
-                        setResponse(response);
-                    })
-                    .catch((error) => {
-                        console.log(error);
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, {
+                        type: "audio/wav",
                     });
-            };
+                    audioChunks = [];
+                    const formData = new FormData();
+                    formData.append("audio", audioBlob);
+                    axios
+                        .post("http://127.0.0.1:8070/get_music", formData)
+                        .then((response) => {
+                            setResponse(response);
+                            setSending(false);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                            alert("Ошибка на сервере или проблема с интернетом");
+                        });
+                };
 
-            mediaRecorder.start();
+                mediaRecorder.start();
+            }
+            getAudio();
+            const stopRecords = () => {
+                mediaRecorder.stop();
+            };
+            setTimeout(stopRecords, 15000);
         }
-        getAudio();
-        const stopRecords = () => {
-            mediaRecorder.stop();
-            setSending(false);
-        };
-        setTimeout(stopRecords, 15000);
     };
 
     var close_form = "display_none";
