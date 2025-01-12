@@ -21,6 +21,9 @@ app.config["SECRET_KEY"] = (
     "5457fae2a71f9331bf4bf3dd6813f90abeb33839f4608755ce301b9321c671791673817685w47uer6uuu"
 )
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+app.config['SQLALCHEMY_BINDS'] = {
+    'music': 'sqlite:///music.db'
+}
 db = SQLAlchemy(app)
 CORS(app)
 
@@ -30,6 +33,18 @@ class Users(db.Model):
     name = db.Column(db.String(10))
     nickname = db.Column(db.String(30))
     password = db.Column(db.String())
+
+    def __repr__(self):
+        return f"<users {self.id}>"
+
+
+class Music(db.Model):
+
+    __bind_key__ = 'music'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String())
+    text = db.Column(db.Text())
 
     def __repr__(self):
         return f"<users {self.id}>"
@@ -190,6 +205,7 @@ def get_music2():
 def main():
     # with app.app_context():
     #     db.create_all()
+        # db.create_all(bind='music')
     # users = Users(name="name", nickname="nickname", password="password")
     # db.session.add(users)
     # db.session.flush()
