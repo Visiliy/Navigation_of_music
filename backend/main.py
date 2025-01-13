@@ -1,6 +1,7 @@
 from flask import *
 from flask_cors import CORS
 from random import randrange
+from difflib import SequenceMatcher
 from flask_sqlalchemy import SQLAlchemy
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,9 +22,7 @@ app.config["SECRET_KEY"] = (
     "5457fae2a71f9331bf4bf3dd6813f90abeb33839f4608755ce301b9321c671791673817685w47uer6uuu"
 )
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
-app.config['SQLALCHEMY_BINDS'] = {
-    'music': 'sqlite:///music.db'
-}
+app.config["SQLALCHEMY_BINDS"] = {"music": "sqlite:///music.db"}
 db = SQLAlchemy(app)
 CORS(app)
 
@@ -40,7 +39,7 @@ class Users(db.Model):
 
 class Music(db.Model):
 
-    __bind_key__ = 'music'
+    __bind_key__ = "music"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String())
@@ -50,74 +49,40 @@ class Music(db.Model):
         return f"<users {self.id}>"
 
 
-class Sound:
-    def init(self, file):
-        self.name = file
-
-    def get_average_pitches(self):
-        segment_length_ms = 0.01
-        """
-        Считывает аудиофайл, делит его на отрезки и вычисляет среднюю высоту тона для каждого.
-
-        Args:
-            audio_file: Путь к аудиофайлу.
-            segment_length_ms: Длина отрезка в миллисекундах.
-
-        Returns:
-            Список средних высот тона для каждого отрезка (в герцах).  Возвращает None в случае ошибки.
-        """
-        try:
-            y, sr = librosa.load(self.name)  # Загружаем аудио
-            segment_length_samples = int(
-                sr * segment_length_ms
-            )  # Длина отрезка в семплах
-
-            if segment_length_samples == 0:
-                return None
-
-            # num_segments = [y[i:i + segment_length_samples] for i in range(0, len(y), segment_length_samples)]
-
-            pitches = []
-            highs = []
-            rythm = []
-            j = 0
-            e = 1
-            for i in range(0, len(y), segment_length_samples):
-                segment = y[i : i + segment_length_samples]
-                # Используем librosa.yin для оценки высоты тона (более подходит для коротких отрезков)
-                pitch = librosa.yin(segment, fmin=80, fmax=8000)  # Настраиваем частоты
-                if (
-                    pitch is not None
-                ):  # Обрабатываем случаи, когда метод не может определить высоту тона
-                    pitches.append(pitch)
-                else:
-                    pitches.append(
-                        0.0
-                    )  # Или другое значение для обозначения отсутствия тона.
-                if j != 0:
-                    if pitches[j - 1] != pitch:
-                        highs.append(pitch)
-                        e += 1
-                    else:
-                        rythm.append(e)
-                        e = 1
-                else:
-                    highs.append(pitch)
-                j += 1
-            self.pitches = pitches
-            return rythm
-
-        except FileNotFoundError:
-            print(f"Ошибка: Файл {self.name} не найден.")
-            return None
-        except Exception as e:
-            print(f"Произошла ошибка: {e}")
-            return None
+def clear_word(word):
+    word = word.lower()
+    word = word.strip(".")
+    word = word.strip(",")
+    word = word.strip("«")
+    word = word.strip("»")
+    word = word.strip("?")
+    word = word.strip("!")
+    return word
 
 
-# Пример использования
-# s = Sound('dddd.wav')
-# print(s.get_average_pitches())
+def read_music(pattern):
+    max_value = 0
+    hash_map = {}
+    music_list = db.session.query(Music).all()
+    for music in music_list:
+        music_text = json.loads(music.text)
+        count = 0
+        for i in pattern:
+            max_koeff = 0
+            for word in music_text:
+                matcher = SequenceMatcher(None, i, word)
+                similarity = matcher.ratio()
+                max_koeff = max(max_koeff, similarity)
+            if max_koeff >= 0.7:
+                count += 1
+        max_value = max(max_value, count)
+        if count > 0:
+            hash_map[count] = music.name
+    name_list = sorted(hash_map.items(), reverse=True, key=lambda x: x[0])
+    if max_value > 0:
+        return name_list[: min(len(name_list), 5)]
+    else:
+        return [(0, "Ничего не найдено")]
 
 
 @app.route("/login_user", methods=["POST"])
@@ -182,21 +147,23 @@ def get_music2():
             )
 
             response = deepgram.listen.rest.v("1").transcribe_file(payload, options)
-
-            print(
-                json.loads(response.to_json(indent=4))["results"]["channels"][0][
-                    "alternatives"
-                ][0]["transcript"]
-            )
+            pattern = json.loads(response.to_json(indent=4))["results"]["channels"][0][
+                "alternatives"
+            ][0]["transcript"]
+            pattern = pattern.split()
+            for i in range(len(pattern)):
+                pattern[i] = clear_word(pattern[i])
+            ans = read_music(pattern)
+            print(pattern)
             os.remove(AUDIO_FILE)
         except Exception as e:
             print(f"Exception: {e}")
             error = True
         if not error:
             print("OK")
-            return jsonify("OK", 200)
+            return jsonify(ans, 200)
         print("NO")
-        return jsonify("ERROR", 200)
+        return jsonify([(0, "ERROR")], 200)
     except:
         print("NO NO")
         return jsonify("ERROR", 200)
@@ -205,7 +172,7 @@ def get_music2():
 def main():
     # with app.app_context():
     #     db.create_all()
-        # db.create_all(bind='music')
+    # db.create_all(bind='music')
     # users = Users(name="name", nickname="nickname", password="password")
     # db.session.add(users)
     # db.session.flush()

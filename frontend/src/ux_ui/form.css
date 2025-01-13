@@ -1,0 +1,37 @@
+.music_response {
+    position: absolute;
+    border: 8px solid blueviolet;
+    box-shadow: 0 0 20px 7px blueviolet;
+    border-radius: 20px;
+    top: 25%;
+    left: 37%;
+    width: 22%;
+    height: 55%;
+    z-index: 10;
+}
+
+.main_music {
+    width: 80%;
+    padding: 10px;
+    border: 8px solid aqua;
+    background-color: aqua;
+    border-radius: 12px;
+}
+
+.main_music_2 {
+    margin: 0 auto;
+    margin-top: 7%;
+    text-align: center;
+    width: 80%;
+    padding: 10px;
+    border: 3px solid aqua;
+    color: aqua;
+    border-radius: 12px;
+}
+
+.service_text {
+    margin-top: 15px;
+    padding: 5%;
+    color: blueviolet;
+    user-select: none;
+}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./ux_ui/main.css";
 import "./ux_ui/main2.css";
+import "./ux_ui/form.css";
 import "./ux_ui/btn1.css";
 import "./ux_ui/sending_audio_form.css";
 import Name from "./components/name";
@@ -11,7 +12,7 @@ function Page1() {
     const [openForm, setOpenForm] = useState(true);
     const [openRegForm, setOpenRegForm] = useState(false);
     const [sending, setSending] = useState(false);
-    const [response, setResponse] = useState("");
+    const [response, setResponse] = useState("анрк");
 
     const [nickname1, setNickname1] = useState("");
     const [password1, setPassword1] = useState("");
@@ -127,12 +128,15 @@ function Page1() {
                     axios
                         .post("http://127.0.0.1:8070/get_music", formData)
                         .then((response) => {
+                            console.log(response);
                             setResponse(response);
                             setSending(false);
                         })
                         .catch((error) => {
                             console.log(error);
-                            alert("Ошибка на сервере или проблема с интернетом");
+                            alert(
+                                "Ошибка на сервере или проблема с интернетом"
+                            );
                         });
                 };
 
@@ -154,7 +158,11 @@ function Page1() {
     var close_reg_form = "display_none";
     var close_send_form = "display_none";
     var close_playe4 = "display_none";
+    var close_playe5 = "";
+    var close_playe6 = "display_none";
     var close_btn = "";
+    var list1 = "display_none";
+    var list2 = "";
 
     if (!openForm) {
         close_form = "";
@@ -174,11 +182,18 @@ function Page1() {
         not_fon = "main_2_0";
         close_send_form = "";
         close_playe2 = "display_none";
+        close_playe4 = "display_none";
     }
 
     if (getCookie("nickname") != undefined) {
         close_playe4 = "";
         close_btn = "display_none";
+    }
+
+    if (response != "") {
+        not_fon = "main_2_0";
+        close_playe5 = "display_none";
+        close_playe6 = "";
     }
 
     return (
@@ -225,7 +240,7 @@ function Page1() {
             </div>
             <button className="about">О проекте</button>
             <div
-                className={`player ${close_playe1} ${close_playe2}`}
+                className={`player ${close_playe1} ${close_playe2} ${close_playe5}`}
                 onClick={sendAudioContentToServer}
             >
                 <img src="src/img/player.png" className="img3"></img>
@@ -290,6 +305,26 @@ function Page1() {
                 >
                     Зарегистрироваться
                 </button>
+            </div>
+            <div className={`music_response ${close_playe6}`}>
+                <div className={`list1 ${list1}`}>
+                    <center>
+                        <h2 className="main_music">День победы</h2>
+                    </center>
+                    <center>
+                        <h2 className="service_text">
+                            Возможно, вы искали это:
+                        </h2>
+                    </center>
+                    <h2 className="main_music_2">Катюша</h2>
+                    <h2 className="main_music_2">Три танкиста</h2>
+                    <h2 className="main_music_2">Священная война</h2>
+                    <h2 className="main_music_2">Гимн России</h2>
+                </div>
+                <div className={`list2 ${list2}`}>
+                    <center><h2 className="service_text">Ничего не найдено</h2></center>
+                    <center><h2 style={{color: "blueviolet", userSelect: "none",}}>Упс :(</h2></center>
+                </div>
             </div>
         </div>
     );
