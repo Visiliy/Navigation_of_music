@@ -12,7 +12,7 @@ function Page1() {
     const [openForm, setOpenForm] = useState(true);
     const [openRegForm, setOpenRegForm] = useState(false);
     const [sending, setSending] = useState(false);
-    const [response, setResponse] = useState("анрк");
+    const [response, setResponse] = useState([[undefined, undefined]]);
 
     const [nickname1, setNickname1] = useState("");
     const [password1, setPassword1] = useState("");
@@ -99,6 +99,12 @@ function Page1() {
         window.location.href = "/home";
     };
 
+    const closeMusicForm = () => {
+        list1 = "display_none";
+        list2 = "display_none";
+        setResponse([[undefined, undefined]]);
+    }
+
     const sendAudioContentToServer = () => {
         if (getCookie("name") == undefined) {
             alert("Вы не авторизовались");
@@ -128,8 +134,8 @@ function Page1() {
                     axios
                         .post("http://127.0.0.1:8070/get_music", formData)
                         .then((response) => {
-                            console.log(response);
-                            setResponse(response);
+                            console.log(response.data[0]);
+                            setResponse(response.data[0]);
                             setSending(false);
                         })
                         .catch((error) => {
@@ -161,8 +167,8 @@ function Page1() {
     var close_playe5 = "";
     var close_playe6 = "display_none";
     var close_btn = "";
-    var list1 = "display_none";
-    var list2 = "";
+    var list1 = "";
+    var list2 = "display_none";
 
     if (!openForm) {
         close_form = "";
@@ -190,7 +196,11 @@ function Page1() {
         close_btn = "display_none";
     }
 
-    if (response != "") {
+    if (response[0][0] != undefined) {
+        if (response[0][0] == 0) {
+            list1 = "display_none";
+            list2 = "";
+        }
         not_fon = "main_2_0";
         close_playe5 = "display_none";
         close_playe6 = "";
@@ -309,22 +319,33 @@ function Page1() {
             <div className={`music_response ${close_playe6}`}>
                 <div className={`list1 ${list1}`}>
                     <center>
-                        <h2 className="main_music">День победы</h2>
+                        <h2 className="main_music">{response[0][1]}<p className="service_img">💜</p></h2>
                     </center>
                     <center>
                         <h2 className="service_text">
                             Возможно, вы искали это:
                         </h2>
                     </center>
-                    <h2 className="main_music_2">Катюша</h2>
-                    <h2 className="main_music_2">Три танкиста</h2>
-                    <h2 className="main_music_2">Священная война</h2>
-                    <h2 className="main_music_2">Гимн России</h2>
+                    {response.slice(1).map((text) => (
+                        <h2 key={text[0]} className="main_music_2">
+                            {text[1]}
+                            <p className="service_img">💜</p>
+                        </h2>
+                    ))}
                 </div>
                 <div className={`list2 ${list2}`}>
-                    <center><h2 className="service_text">Ничего не найдено</h2></center>
-                    <center><h2 style={{color: "blueviolet", userSelect: "none",}}>Упс :(</h2></center>
+                    <center>
+                        <h2 className="service_text" style={{ color: "aqua" }}>
+                            Ничего не найдено
+                        </h2>
+                    </center>
+                    <center>
+                        <h2 style={{ color: "aqua", userSelect: "none" }}>
+                            Упс :(
+                        </h2>
+                    </center>
                 </div>
+                <div onClick={closeMusicForm} className="close"></div>
             </div>
         </div>
     );
