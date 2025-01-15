@@ -99,6 +99,10 @@ function Page1() {
         window.location.href = "/home";
     };
 
+    const toAbout = () => {
+        window.location.href = "/about";
+    }
+
     const closeMusicForm = () => {
         list1 = "display_none";
         list2 = "display_none";
@@ -204,6 +208,7 @@ function Page1() {
         not_fon = "main_2_0";
         close_playe5 = "display_none";
         close_playe6 = "";
+        close_playe4 = "display_none";
     }
 
     return (
@@ -248,7 +253,7 @@ function Page1() {
                     Аккаунт
                 </button>
             </div>
-            <button className="about">О проекте</button>
+            <button className="about" onClick={toAbout}>О проекте</button>
             <div
                 className={`player ${close_playe1} ${close_playe2} ${close_playe5}`}
                 onClick={sendAudioContentToServer}
