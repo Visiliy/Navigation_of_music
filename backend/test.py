@@ -41,7 +41,7 @@ def read_music(pattern):
 
 
 def write_music():
-    name = "Гимн России"
+    name = "Расскажи, Снегурочка"
     text = ""
     with open("text.txt", "r", encoding="utf-8") as file:
         t = file.read().split()
@@ -75,7 +75,7 @@ def get_misic_list():
 def main():
     with app.app_context():
         # db.create_all()
-        # get_misic_list()
+        get_misic_list()
         flag = False
         if flag:
             write_music()

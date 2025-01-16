@@ -3,6 +3,7 @@
     width: 23%;
     left: 48%;
     transform: translate(-50%, -0%);
+    user-select: none;
 }
 
 .wrapper {
@@ -17,4 +18,25 @@
     box-shadow: 0 0 20px 7px blueviolet;
     border-radius: 20px;
     overflow: auto;
+    user-select: none;
+}
+
+.h1_text {
+    background-color: aqua;
+    padding: 10px;
+    border-radius: 20px;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 5%;
+}
+
+.h2_text {
+    color: aqua;
+    margin-top: 5%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.wrapper::-webkit-scrollbar {
+    width: 0px; /* ширина scrollbar */
 }

@@ -101,13 +101,13 @@ function Page1() {
 
     const toAbout = () => {
         window.location.href = "/about";
-    }
+    };
 
     const closeMusicForm = () => {
         list1 = "display_none";
         list2 = "display_none";
         setResponse([[undefined, undefined]]);
-    }
+    };
 
     const sendAudioContentToServer = () => {
         if (getCookie("name") == undefined) {
@@ -136,7 +136,12 @@ function Page1() {
                     const formData = new FormData();
                     formData.append("audio", audioBlob);
                     axios
-                        .post("http://127.0.0.1:8070/get_music", formData)
+                        .post(
+                            `http://127.0.0.1:8070/get_music?nickname=${getCookie(
+                                "nickname"
+                            )}`,
+                            formData
+                        )
                         .then((response) => {
                             console.log(response.data[0]);
                             setResponse(response.data[0]);
@@ -158,6 +163,22 @@ function Page1() {
             };
             setTimeout(stopRecords, 15000);
         }
+    };
+
+    const favorite = (text) => {
+        console.log(text);
+        axios
+            .get(
+                `http://127.0.0.1:8070/record_favorite_music?nickname=${getCookie(
+                    "nickname"
+                )}&music=${text}`
+            )
+            .then((response) => {
+                console.log(response.data[0]);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
 
     var close_form = "display_none";
@@ -253,7 +274,9 @@ function Page1() {
                     Аккаунт
                 </button>
             </div>
-            <button className="about" onClick={toAbout}>О проекте</button>
+            <button className="about" onClick={toAbout}>
+                О проекте
+            </button>
             <div
                 className={`player ${close_playe1} ${close_playe2} ${close_playe5}`}
                 onClick={sendAudioContentToServer}
@@ -324,7 +347,15 @@ function Page1() {
             <div className={`music_response ${close_playe6}`}>
                 <div className={`list1 ${list1}`}>
                     <center>
-                        <h2 className="main_music">{response[0][1]}<p className="service_img">💜</p></h2>
+                        <h2 className="main_music">
+                            {response[0][1]}
+                            <p
+                                onClick={() => favorite(response[0][1])}
+                                className="service_img"
+                            >
+                                💜
+                            </p>
+                        </h2>
                     </center>
                     <center>
                         <h2 className="service_text">
@@ -334,7 +365,12 @@ function Page1() {
                     {response.slice(1).map((text) => (
                         <h2 key={text[0]} className="main_music_2">
                             {text[1]}
-                            <p className="service_img">💜</p>
+                            <p
+                                onClick={() => favorite(text[1])}
+                                className="service_img"
+                            >
+                                💜
+                            </p>
                         </h2>
                     ))}
                 </div>

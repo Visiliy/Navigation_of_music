@@ -13,6 +13,8 @@ from deepgram import (
 import json
 import os
 
+
+import datetime
 import librosa
 import numpy as np
 
@@ -30,8 +32,10 @@ CORS(app)
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(10))
-    nickname = db.Column(db.String(30))
+    nickname = db.Column(db.String())
     password = db.Column(db.String())
+    favoritemusic = db.Column(db.Text())
+    musicalhistory = db.Column(db.Text())
 
     def __repr__(self):
         return f"<users {self.id}>"
@@ -107,7 +111,11 @@ def user_registration():
         if Users.query.filter_by(nickname=req[1]).first():
             return jsonify([False, False], 200)
         users = Users(
-            name=req[0], nickname=req[1], password=generate_password_hash(req[2])
+            name=req[0],
+            nickname=req[1],
+            password=generate_password_hash(req[2]),
+            favoritemusic=json.dumps([]),
+            musicalhistory=json.dumps([]),
         )
         db.session.add(users)
         db.session.flush()
@@ -125,6 +133,8 @@ def get_music():
 @app.route("/get_music", methods=["POST"])
 def get_music2():
     try:
+        args = dict(request.args)
+        print(args)
         error = False
         content = request.files["audio"].read()
         AUDIO_FILE = f"media_files/audioToSave{randrange(1, 100000000)}.wav"
@@ -154,7 +164,22 @@ def get_music2():
             for i in range(len(pattern)):
                 pattern[i] = clear_word(pattern[i])
             ans = read_music(pattern)
-            print(pattern)
+
+            array = [1]
+            current_datetime = datetime.datetime.now()
+            current_year = current_datetime.year
+            current_month = current_datetime.month
+            current_day = current_datetime.day
+            str_format = f"{current_day}:{current_month}:{current_year}"
+            array.append(str_format)
+            for i in ans:
+                array.append(i[1])
+            user = Users.query.filter_by(nickname=args["nickname"]).first()
+            res = json.loads(user.musicalhistory)
+            res.append(array)
+            user.musicalhistory = json.dumps(res)
+            db.session.commit()
+
             os.remove(AUDIO_FILE)
         except Exception as e:
             print(f"Exception: {e}")
@@ -169,10 +194,53 @@ def get_music2():
         return jsonify("ERROR", 200)
 
 
+@app.route("/favorite_music", methods=["GET"])
+def favorite_music():
+    try:
+        args = dict(request.args)
+        user = Users.query.filter_by(nickname=args["nickname"]).first()
+        res = json.loads(user.favoritemusic)
+        if len(res) == 0:
+            return jsonify([[1, "Пусто"]], 200)
+        return jsonify(res, 200)
+    except:
+        return jsonify([[0, "error"]], 200)
+
+
+@app.route("/musical_history", methods=["GET"])
+def musical_history():
+    try:
+        args = dict(request.args)
+        user = Users.query.filter_by(nickname=args["nickname"]).first()
+        res = json.loads(user.musicalhistory)
+        if len(res) == 0:
+            return jsonify([[1, "Пусто"]], 200)
+        return jsonify(res[::-1], 200)
+    except:
+        return jsonify([[0, "error"]], 200)
+    
+
+@app.route("/record_favorite_music", methods=["GET"])
+def record_favorite_music():
+    try:
+        args = dict(request.args)
+        user = Users.query.filter_by(nickname=args["nickname"]).first()
+        res = json.loads(user.favoritemusic)
+        if len(res) == 0:
+            res.append([1, "Музыкальные произведения", args["music"]])
+        elif args["music"] not in res[0]:
+            res[0].append(args["music"])
+        user.favoritemusic = json.dumps(res)
+        db.session.commit()
+        return jsonify("OK", 200)
+    except:
+        return jsonify("NO", 200)
+
+
 def main():
     # with app.app_context():
     #     db.create_all()
-    # db.create_all(bind='music')
+    #     db.create_all(bind='FavoriteMusic')
     # users = Users(name="name", nickname="nickname", password="password")
     # db.session.add(users)
     # db.session.flush()

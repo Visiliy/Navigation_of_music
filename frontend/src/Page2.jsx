@@ -1,19 +1,49 @@
 import "./ux_ui/page_two.css";
 import "./ux_ui/btn1.css";
 import getCookie from "./modules/getCookie";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Page2 = () => {
     if (getCookie("nickname") == undefined) {
         window.location.href = "/";
     }
 
-    const [data1, setData1] = useState([[1, "Музыкальные произведения", "Три белых коня"]]);
-    const [data2, setData2] = useState([
-        [1, "15:01:2025", "День Победы", "Месяц май", "Три белых коня"],
-        [2, "15:01:2025", "День Победы", "Месяц май", "Три белых коня"],
-    ]);
+    const [data1, setData1] = useState([]);
+    const [data2, setData2] = useState([]);
     const [switch_w, setSwitch] = useState(true);
+
+    useEffect(() => {
+        async function fetchData() {
+            axios
+                .get(`http://127.0.0.1:8070/favorite_music?nickname=${getCookie('nickname')}`)
+                .then((response) => {
+                    setData1(response.data[0]);
+                    console.log(response.data[0]);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setData1([[1, "Ошибки на сервере"]]);
+                });
+        }
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        async function fetchData() {
+            axios
+                .get(`http://127.0.0.1:8070/musical_history?nickname=${getCookie('nickname')}`)
+                .then((response) => {
+                    setData2(response.data[0]);
+                    console.log(response.data[0]);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setData2([[1, "Ошибки на сервере"]]);
+                });
+        }
+        fetchData();
+    }, [switch_w]);
 
     const toMain = () => {
         window.location.href = "/";
@@ -71,7 +101,9 @@ const Page2 = () => {
                                 {data[1]}
                             </h2>
                             {data.slice(2).map((music_name) => (
-                                <h2 key={data[0]} className="favourites_h2">{music_name}</h2>
+                                <h2 key={data[0]} className="favourites_h2">
+                                    {music_name}
+                                </h2>
                             ))}
                         </div>
                     ))}
@@ -83,7 +115,9 @@ const Page2 = () => {
                                 {data[1]}
                             </h2>
                             {data.slice(2).map((music_name) => (
-                                <h2 key={data[0]} className="favourites_h2">{music_name}</h2>
+                                <h2 key={data[0]} className="favourites_h2">
+                                    {music_name}
+                                </h2>
                             ))}
                         </div>
                     ))}
