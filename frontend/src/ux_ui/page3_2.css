@@ -1,0 +1,128 @@
+.wrapper_div {
+    top: 15%;
+    position: absolute;
+    width: 20%;
+    height: 15%;
+    background-color: #020202;
+    border: 7px solid blueviolet;
+    box-shadow: 0 0 10px 5px blueviolet;
+    border-radius: 20px;
+    overflow: auto;
+    user-select: none;
+    transition: 2s;
+    overflow: auto;
+    z-index: 2;
+}
+
+.open_and_close_btn {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    padding: 5px;
+    font-size: 15px;
+    width: 100px;
+    border-radius: 5px;
+    border: none;
+    background-color: blueviolet;
+}
+
+.text_h1 {
+    text-align: center;
+    color: aqua;
+}
+
+.text_h2 {
+    position: absolute;
+    color: white;
+    left: 5%;
+    right: 5%;
+    text-align: justify;
+}
+
+.text_h2_2 {
+    color: white;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 5%;
+    text-align: justify;
+}
+
+.sticer1 {
+    top: 46%;
+    left: 9%;
+    position: absolute;
+    z-index: 1;
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    border-radius: 20px;
+    border: 7px solid blueviolet;
+    box-shadow: 0 0 10px 5px blueviolet;
+}
+
+.sticer2 {
+    top: 46%;
+    left: 39%;
+    position: absolute;
+    z-index: 1;
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    border-radius: 20px;
+    border: 7px solid blueviolet;
+    box-shadow: 0 0 10px 5px blueviolet;
+}
+
+.sticer3 {
+    top: 46%;
+    left: 69%;
+    position: absolute;
+    z-index: 1;
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    border-radius: 20px;
+    border: 7px solid blueviolet;
+    box-shadow: 0 0 10px 5px blueviolet;
+}
+
+.content {
+    top: 46%;
+    position: absolute;
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    border: 7px solid blueviolet;
+    box-shadow: 0 0 10px 5px blueviolet;
+    background-color: #020202;
+    border-radius: 20px;
+}
+
+
+.div1 {
+    left: 9%;
+}
+
+.div2 {
+    left: 39%;
+}
+
+.div3 {
+    left: 69%;
+}
+
+.sticer1:hover {
+    cursor: pointer;
+}
+
+.sticer2:hover {
+    cursor: pointer;
+}
+
+.sticer3:hover {
+    cursor: pointer;
+}
+
+.open_and_close_btn:hover {
+    cursor: pointer;
+}
+
+.wrapper_div::-webkit-scrollbar {
+    width: 0px; 
+}

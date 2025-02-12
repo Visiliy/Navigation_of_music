@@ -93,11 +93,6 @@
     display: none;
 }
 
-.btn1:hover {
-    cursor: pointer;
-    transform: scale(0.95);
-}
-
 .about:hover {
     cursor: pointer;
     transform: scale(0.95);
