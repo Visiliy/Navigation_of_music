@@ -12,11 +12,7 @@ from deepgram import (
 )
 import json
 import os
-
-
 import datetime
-import librosa
-import numpy as np
 
 
 app = Flask(__name__)
@@ -67,7 +63,9 @@ def clear_word(word):
 def read_music(pattern):
     max_value = 0
     hash_map = {}
+    print("OK_555")
     music_list = db.session.query(Music).all()
+    print("OK_552")
     for music in music_list:
         music_text = json.loads(music.text)
         count = 0
@@ -87,6 +85,36 @@ def read_music(pattern):
         return name_list[: min(len(name_list), 5)]
     else:
         return [(0, "Ничего не найдено")]
+    
+
+def dp(AUDIO_FILE):
+    try:
+        deepgram = DeepgramClient("50a062200dc80b224f63d15175a7b8bb6e10e395")
+
+        with open(AUDIO_FILE, "rb") as file:
+            buffer_data = file.read()
+
+        payload: FileSource = {
+            "buffer": buffer_data,
+        }
+
+        options = PrerecordedOptions(
+            model="nova-2",
+            smart_format=True,
+            language="ru",
+        )
+        response = deepgram.listen.rest.v("1").transcribe_file(payload, options)
+        pattern = json.loads(response.to_json(indent=4))["results"]["channels"][0][
+            "alternatives"
+        ][0]["transcript"]
+        pattern = pattern.split()
+        for i in range(len(pattern)):
+            pattern[i] = clear_word(pattern[i])
+        print(pattern)
+        ans = read_music(pattern)
+        return ans
+    except:
+        return False
 
 
 @app.route("/login_user", methods=["POST"])
@@ -140,31 +168,8 @@ def get_music2():
         AUDIO_FILE = f"media_files/audioToSave{randrange(1, 100000000)}.wav"
         with open(AUDIO_FILE, "wb") as fh:
             fh.write(content)
-        try:
-            deepgram = DeepgramClient("50a062200dc80b224f63d15175a7b8bb6e10e395")
-
-            with open(AUDIO_FILE, "rb") as file:
-                buffer_data = file.read()
-
-            payload: FileSource = {
-                "buffer": buffer_data,
-            }
-
-            options = PrerecordedOptions(
-                model="nova-2",
-                smart_format=True,
-                language="ru",
-            )
-
-            response = deepgram.listen.rest.v("1").transcribe_file(payload, options)
-            pattern = json.loads(response.to_json(indent=4))["results"]["channels"][0][
-                "alternatives"
-            ][0]["transcript"]
-            pattern = pattern.split()
-            for i in range(len(pattern)):
-                pattern[i] = clear_word(pattern[i])
-            ans = read_music(pattern)
-
+        ans = dp(AUDIO_FILE)
+        if ans is not False:
             array = [1]
             current_datetime = datetime.datetime.now()
             current_year = current_datetime.year
@@ -181,8 +186,8 @@ def get_music2():
             db.session.commit()
 
             os.remove(AUDIO_FILE)
-        except Exception as e:
-            print(f"Exception: {e}")
+        else:
+            print(f"Exception")
             error = True
         if not error:
             print("OK")
