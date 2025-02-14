@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./ux_ui/main.css";
 import "./ux_ui/main2.css";
+import "./ux_ui/form.css";
 import "./ux_ui/btn1.css";
 import "./ux_ui/sending_audio_form.css";
 import Name from "./components/name";
@@ -11,7 +12,7 @@ function Page1() {
     const [openForm, setOpenForm] = useState(true);
     const [openRegForm, setOpenRegForm] = useState(false);
     const [sending, setSending] = useState(false);
-    const [response, setResponse] = useState("");
+    const [response, setResponse] = useState([[undefined, undefined]]);
 
     const [nickname1, setNickname1] = useState("");
     const [password1, setPassword1] = useState("");
@@ -39,7 +40,6 @@ function Page1() {
                 } else {
                     alert("Нет такого аккаунта");
                 }
-                
             })
             .catch((error) => {
                 console.log(error);
@@ -50,10 +50,14 @@ function Page1() {
     const registration = () => {
         if (
             password2_1 == password2_2 &&
-            password2_1.split(" ").length == 1 && password2_1 != "" &&
-            name.split(" ").length == 1 && name != "" &&
-            nickname2.split(" ").length == 1 && nickname2 != "" &&
-            password2_2.split(" ").length == 1 && password2_2 != ""
+            password2_1.split(" ").length == 1 &&
+            password2_1 != "" &&
+            name.split(" ").length == 1 &&
+            name != "" &&
+            nickname2.split(" ").length == 1 &&
+            nickname2 != "" &&
+            password2_2.split(" ").length == 1 &&
+            password2_2 != ""
         ) {
             var data = [name, nickname2, password2_1];
             axios
@@ -95,45 +99,86 @@ function Page1() {
         window.location.href = "/home";
     };
 
+    const toAbout = () => {
+        window.location.href = "/about";
+    };
+
+    const closeMusicForm = () => {
+        list1 = "display_none";
+        list2 = "display_none";
+        setResponse([[undefined, undefined]]);
+    };
+
     const sendAudioContentToServer = () => {
-        setSending(true);
+        if (getCookie("name") == undefined) {
+            alert("Вы не авторизовались");
+        } else {
+            setSending(true);
 
-        let mediaRecorder;
-        let audioChunks = [];
+            let mediaRecorder;
+            let audioChunks = [];
 
-        async function getAudio() {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
-            });
-            mediaRecorder = new MediaRecorder(stream);
+            async function getAudio() {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                });
+                mediaRecorder = new MediaRecorder(stream);
 
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-            };
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
 
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
-                audioChunks = [];
-                const formData = new FormData();
-                formData.append("audio", audioBlob);
-                axios
-                    .post("http://127.0.0.1:8070/get_music", formData)
-                    .then((response) => {
-                        setResponse(response);
-                    })
-                    .catch((error) => {
-                        console.log(error);
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, {
+                        type: "audio/wav",
                     });
-            };
+                    audioChunks = [];
+                    const formData = new FormData();
+                    formData.append("audio", audioBlob);
+                    axios
+                        .post(
+                            `http://127.0.0.1:8070/get_music?nickname=${getCookie(
+                                "nickname"
+                            )}`,
+                            formData
+                        )
+                        .then((response) => {
+                            console.log(response.data[0]);
+                            setResponse(response.data[0]);
+                            setSending(false);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                            alert(
+                                "Ошибка на сервере или проблема с интернетом"
+                            );
+                        });
+                };
 
-            mediaRecorder.start();
+                mediaRecorder.start();
+            }
+            getAudio();
+            const stopRecords = () => {
+                mediaRecorder.stop();
+            };
+            setTimeout(stopRecords, 15000);
         }
-        getAudio();
-        const stopRecords = () => {
-            mediaRecorder.stop();
-            setSending(false);
-        };
-        setTimeout(stopRecords, 15000);
+    };
+
+    const favorite = (text) => {
+        console.log(text);
+        axios
+            .get(
+                `http://127.0.0.1:8070/record_favorite_music?nickname=${getCookie(
+                    "nickname"
+                )}&music=${text}`
+            )
+            .then((response) => {
+                console.log(response.data[0]);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
 
     var close_form = "display_none";
@@ -144,7 +189,11 @@ function Page1() {
     var close_reg_form = "display_none";
     var close_send_form = "display_none";
     var close_playe4 = "display_none";
+    var close_playe5 = "";
+    var close_playe6 = "display_none";
     var close_btn = "";
+    var list1 = "";
+    var list2 = "display_none";
 
     if (!openForm) {
         close_form = "";
@@ -164,11 +213,23 @@ function Page1() {
         not_fon = "main_2_0";
         close_send_form = "";
         close_playe2 = "display_none";
+        close_playe4 = "display_none";
     }
 
     if (getCookie("nickname") != undefined) {
         close_playe4 = "";
         close_btn = "display_none";
+    }
+
+    if (response[0][0] != undefined) {
+        if (response[0][0] == 0) {
+            list1 = "display_none";
+            list2 = "";
+        }
+        not_fon = "main_2_0";
+        close_playe5 = "display_none";
+        close_playe6 = "";
+        close_playe4 = "display_none";
     }
 
     return (
@@ -213,9 +274,11 @@ function Page1() {
                     Аккаунт
                 </button>
             </div>
-            <button className="about">О проекте</button>
+            <button className="about" onClick={toAbout}>
+                О проекте
+            </button>
             <div
-                className={`player ${close_playe1} ${close_playe2}`}
+                className={`player ${close_playe1} ${close_playe2} ${close_playe5}`}
                 onClick={sendAudioContentToServer}
             >
                 <img src="src/img/player.png" className="img3"></img>
@@ -240,6 +303,7 @@ function Page1() {
                     className="input top2"
                     onChange={(e) => setPassword1(e.target.value)}
                     placeholder="Пароль"
+                    type="password"
                 ></input>
                 <button className="bnt_login_form" onClick={login}>
                     Войти
@@ -254,6 +318,7 @@ function Page1() {
                     className="input top1_1"
                     placeholder="Имя"
                     onChange={(e) => setName(e.target.value)}
+                    maxLength={10}
                 ></input>
                 <input
                     className="input top2_2"
@@ -261,11 +326,13 @@ function Page1() {
                     onChange={(e) => setNickname2(e.target.value)}
                 ></input>
                 <input
+                    type="password"
                     className="input top3"
                     placeholder="Пароль"
                     onChange={(e) => setPassword2_1(e.target.value)}
                 ></input>
                 <input
+                    type="password"
                     className="input top4"
                     placeholder="Повторите пароль"
                     onChange={(e) => setPassword2_2(e.target.value)}
@@ -276,6 +343,50 @@ function Page1() {
                 >
                     Зарегистрироваться
                 </button>
+            </div>
+            <div className={`music_response ${close_playe6}`}>
+                <div className={`list1 ${list1}`}>
+                    <center>
+                        <h2 className="main_music">
+                            {response[0][1]}
+                            <p
+                                onClick={() => favorite(response[0][1])}
+                                className="service_img"
+                            >
+                                💜
+                            </p>
+                        </h2>
+                    </center>
+                    <center>
+                        <h2 className="service_text">
+                            Возможно, вы искали это:
+                        </h2>
+                    </center>
+                    {response.slice(1).map((text) => (
+                        <h2 key={text[0]} className="main_music_2">
+                            {text[1]}
+                            <p
+                                onClick={() => favorite(text[1])}
+                                className="service_img"
+                            >
+                                💜
+                            </p>
+                        </h2>
+                    ))}
+                </div>
+                <div className={`list2 ${list2}`}>
+                    <center>
+                        <h2 className="service_text" style={{ color: "aqua" }}>
+                            Ничего не найдено
+                        </h2>
+                    </center>
+                    <center>
+                        <h2 style={{ color: "aqua", userSelect: "none" }}>
+                            Упс :(
+                        </h2>
+                    </center>
+                </div>
+                <div onClick={closeMusicForm} className="close"></div>
             </div>
         </div>
     );

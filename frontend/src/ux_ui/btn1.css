@@ -14,3 +14,11 @@
     color: aqua;
     right: 0;
 }
+
+.btn1:active {
+    transform: scale(0.95);
+}
+
+.btn1:hover {
+    cursor: pointer;
+}

@@ -1,0 +1,42 @@
+.main_wrapper {
+    position: absolute;
+    width: 23%;
+    left: 48%;
+    transform: translate(-50%, -0%);
+    user-select: none;
+}
+
+.wrapper {
+    left: 50%;
+    transform: translate(-50%, -0%);
+    top: 10%;
+    width: 35%;
+    height: 80%;
+    background-color: #020202;
+    position: absolute;
+    border: 7px solid blueviolet;
+    box-shadow: 0 0 20px 7px blueviolet;
+    border-radius: 20px;
+    overflow: auto;
+    user-select: none;
+}
+
+.h1_text {
+    background-color: aqua;
+    padding: 10px;
+    border-radius: 20px;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 5%;
+}
+
+.h2_text {
+    color: aqua;
+    margin-top: 5%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.wrapper::-webkit-scrollbar {
+    width: 0px; /* ширина scrollbar */
+}
