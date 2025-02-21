@@ -161,7 +161,7 @@ function Page1() {
             const stopRecords = () => {
                 mediaRecorder.stop();
             };
-            setTimeout(stopRecords, 15000);
+            setTimeout(stopRecords, 10000); 
         }
     };
 

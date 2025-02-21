@@ -12,6 +12,7 @@
     transition: 2s;
     overflow: auto;
     z-index: 2;
+    cursor: pointer;
 }
 
 .open_and_close_btn {

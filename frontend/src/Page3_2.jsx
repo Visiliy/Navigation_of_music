@@ -6,10 +6,9 @@ const Page3_2 = () => {
         window.location.href = "/";
     };
 
-    const open = (div, btn, i, div_wrapper) => {
+    const open = (div, i, div_wrapper) => {
         if (i % 2 == 0) {
             div.style.height = "70%";
-            btn.textContent = "Закрыть";
             div_wrapper.classList.remove("display_none");
             div_wrapper.style.opacity = 0;
             setTimeout(() => {
@@ -23,7 +22,6 @@ const Page3_2 = () => {
             }, 1500);
         } else {
             div.style.height = "15%";
-            btn.textContent = "Открыть";
             div_wrapper.classList.add("display_none");
         }
     };
@@ -62,28 +60,25 @@ const Page3_2 = () => {
 
     const open1 = () => {
         const div1 = document.querySelector(".div1");
-        const btn = document.querySelector("#btn1");
         const div_wrapper1 = document.querySelector(".div_wrapper1");
 
-        open(div1, btn, i1, div_wrapper1);
+        open(div1, i1, div_wrapper1);
         i1++;
     };
 
     const open2 = () => {
         const div2 = document.querySelector(".div2");
-        const btn = document.querySelector("#btn2");
         const div_wrapper2 = document.querySelector(".div_wrapper2");
 
-        open(div2, btn, i2, div_wrapper2);
+        open(div2, i2, div_wrapper2);
         i2++;
     };
 
     const open3 = () => {
         const div3 = document.querySelector(".div3");
-        const btn = document.querySelector("#btn3");
         const div_wrapper3 = document.querySelector(".div_wrapper3");
 
-        open(div3, btn, i3, div_wrapper3);
+        open(div3, i3, div_wrapper3);
         i3++;
     };
 
@@ -113,7 +108,7 @@ const Page3_2 = () => {
             <button className="btn1" onClick={toMain}>
                 Назад
             </button>
-            <div className="wrapper_div div1">
+            <div className="wrapper_div div1" onClick={open1}>
                 <h1 className="text_h1">Введение</h1>
                 <div className="div_wrapper1 display_none">
                     <h2 className="text_h2" id="text">
@@ -128,15 +123,8 @@ const Page3_2 = () => {
                         принесёт вам пользу и положительные эмоции.
                     </h2>
                 </div>
-                <button
-                    onClick={open1}
-                    className="open_and_close_btn"
-                    id="btn1"
-                >
-                    Открыть
-                </button>
             </div>
-            <div className="wrapper_div div2">
+            <div className="wrapper_div div2" onClick={open2}>
                 <h1 className="text_h1">Инструкция</h1>
                 <div className="div_wrapper2 display_none">
                     <h2 className="text_h2_2">
@@ -160,15 +148,8 @@ const Page3_2 = () => {
                         левом нижнем углу веб-приложения.
                     </h2>
                 </div>
-                <button
-                    onClick={open2}
-                    className="open_and_close_btn"
-                    id="btn2"
-                >
-                    Открыть
-                </button>
             </div>
-            <div className="wrapper_div div3">
+            <div className="wrapper_div div3" onClick={open3}>
                 <h1 className="text_h1">Прогнозируемый результат</h1>
                 <div className="div_wrapper3 display_none">
                     <h2 className="text_h2_2">
@@ -189,13 +170,6 @@ const Page3_2 = () => {
                         7. Запуск мобильного приложения.
                     </h2>
                 </div>
-                <button
-                    onClick={open3}
-                    className="open_and_close_btn"
-                    id="btn3"
-                >
-                    Открыть
-                </button>
             </div>
             <img
                 className="sticer1"

@@ -14,10 +14,6 @@ import json
 import os
 import datetime
 
-#
-import numpy as np
-import pyaudio
-
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = (
@@ -93,7 +89,7 @@ def read_music(pattern):
 
 def dp(AUDIO_FILE):
     try:
-        deepgram = DeepgramClient("50a062200dc80b224f63d15175a7b8bb6e10e395")
+        deepgram = DeepgramClient("fe31b7e06d3e498009ae86ad76d7b79671c7358e")
 
         with open(AUDIO_FILE, "rb") as file:
             buffer_data = file.read()

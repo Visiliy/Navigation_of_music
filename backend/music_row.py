@@ -1,7 +1,6 @@
 import librosa
 import numpy as np
 import crepe
-import pretty_midi
 
 def frequency_to_note(frequency):
     """Определение названия ноты по частоте с помощью бинарного поиска"""
@@ -83,7 +82,7 @@ class Music_row():
         time, frequency, confidence, _ = crepe.predict(self.y, self.sr, viterbi=True, step_size=40)
         self.frequency = frequency
         self.confidence = confidence
-
+ 
     def filter_notes(self):
         """Фильтрация нот, избавление от помех"""
         self.segments = [0]
@@ -111,7 +110,7 @@ class Music_row():
     
 def main():
     """Основная функция"""
-    music = Music_row('w.wav')
+    music = Music_row('a.wav')
     music.load_and_preprocess()
     music.extract_pitch_with_crepe()
     print(music.filter_notes())
