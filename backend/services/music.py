@@ -1,6 +1,9 @@
 import librosa
-import numpy as np
+# import numpy as np
 import crepe
+import sqlite3
+from fuzzywuzzy import fuzz
+
 
 def frequency_to_note(frequency):
     """Определение названия ноты по частоте с помощью бинарного поиска"""
@@ -49,7 +52,6 @@ def frequency_to_note(frequency):
     elif insertion_point == len(frequencies):
         return note_names[-1]
 
-
     lower_index = insertion_point - 1
     higher_index = insertion_point
 
@@ -63,6 +65,19 @@ def frequency_to_note(frequency):
         return note_names[lower_index]
     else:
         return note_names[higher_index]
+
+
+def get_semitone(note):
+    notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+    note_name = note[:-1].upper()
+    octave = int(note[-1])
+
+    if note_name not in notes:
+        return None
+
+    semitones = notes.index(note_name)
+    total_semitones = (octave * 12) + semitones
+    return total_semitones
 
 
 class Music_row():
@@ -79,10 +94,10 @@ class Music_row():
 
     def extract_pitch_with_crepe(self):
         """Извлекает высоту тона с помощью CREPE"""
-        time, frequency, confidence, _ = crepe.predict(self.y, self.sr, viterbi=True, step_size=40)
+        time, frequency, confidence, _ = crepe.predict(self.y, self.sr, viterbi=True, step_size=20)
         self.frequency = frequency
         self.confidence = confidence
- 
+
     def filter_notes(self):
         """Фильтрация нот, избавление от помех"""
         self.segments = [0]
@@ -100,26 +115,12 @@ class Music_row():
                         extra_count = 1
                 else:
                     extra_count = 0
-                if extra_count == 10:
+                if extra_count == 7:
                     last_note = note_name
                     if self.segments[-1] != note_name:
                         self.segments.append(note_name)
         self.segments = self.segments[1:]
         return self.segments
-
-
-    def get_semitone(self, note):
-        notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        note_name = note[:-1].upper()
-        octave = int(note[-1])
-
-        if note_name not in notes:
-            return None
-
-        semitones = notes.index(note_name)
-        total_semitones = (octave * 12) + semitones
-        return total_semitones
-
 
     def calculate_semitone_differences(self):
         note_list = self.segments
@@ -130,30 +131,96 @@ class Music_row():
                 return None
             semitone_values.append(semitone)
 
-        differences = [semitone_values[i+1] - semitone_values[i]
-                     for i in range(len(semitone_values) - 1)]
+        differences = [semitone_values[i + 1] - semitone_values[i]
+                       for i in range(len(semitone_values) - 1)]
         return differences
-    
+
+
 def main():
     """Основная функция"""
-    music = Music_row()
+    music = Music_row('e.wav')
     music.load_and_preprocess()
     music.extract_pitch_with_crepe()
     music.filter_notes()
-    print(music.calculate_semitone_differences())
+    differences = music.calculate_semitone_differences()
 
+    connection = sqlite3.connect('music_rows.db')
+    cursor = connection.cursor()
+    a = list(cursor.execute("SELECT name FROM Rows"))
+    b = list(cursor.execute("SELECT row FROM Rows"))
+    connection.close()
+    maxx = 0
+    familiar = ''
+    for i in range(5):
+        dif = b[i][0]
+        similarity = fuzz.partial_ratio(dif, differences)
+        if similarity > maxx:
+            maxx = similarity
+            familiar = a[i][0]
+
+    print(familiar)
     """Опционально: создание MIDI-файла"""
-    #midi_data = pretty_midi.PrettyMIDI()
-    #instrument = pretty_midi.Instrument(program=0)
+    # midi_data = pretty_midi.PrettyMIDI()
+    # instrument = pretty_midi.Instrument(program=0)
 
-    #for segment in quantized_segments:
-        #if segment["note"] != -1:
-            #note = pretty_midi.Note(velocity=100, pitch=int(segment["note"]), start=segment["start_time"], end=segment["end_time"])
-            #instrument.notes.append(note)
+    # for segment in quantized_segments:
+    # if segment["note"] != -1:
+    # note = pretty_midi.Note(velocity=100, pitch=int(segment["note"]), start=segment["start_time"], end=segment["end_time"])
+    # instrument.notes.append(note)
 
-    #midi_data.instruments.append(instrument)
-    #midi_data.write("output.mid")
-    #print("MIDI файл output.mid создан.")
+    # midi_data.instruments.append(instrument)
+    # midi_data.write("output.mid")
+    # print("MIDI файл output.mid создан.")
+
 
 if __name__ == "__main__":
     main()
+
+# напиши код, создающий базу данных из двух столбцов. запонена она будет такими данными [('Гимн Российской Федерации', '5 -5 2 2 -7 5 -2 -2 2 -7 2 2 1 2 2 2 1 2 -7 9 -2 -2 2 -3 -4 5 -1 -2 2 -7 5 -2 -2 2 -7 12 -1 -2 -2'), ('В лесу родилась ёлочка', '9 -2 2 -4 -5 9 1 -3 5 -10 8 -1 -2 -2 -5 9 -2 2 -4 7 -10 8 -1 -2 -2 -5 9 -2 2 -4'), ('А знаешь, всё ещё будет', '9 -2 2 1 -1 -9 9 -2 2 -2 -2 1 1 2 3 -2 -1 -2 -2 2 -7 9 -2 2 1 -1 -9 9 -2 2 -2 -2 1 1 2 3 -2 -1 -2 -2 2 2 -2 -2'), ('Группа крови', '-1 -2 7 -7 2 1 -1 5 -5 1 -3 3 -3 2 1 -1 -4 -3 8 -1 1 -3 2 1 -1 5 -5 1 -3 3 -3 2 1 -1 5 -2 -2 -1 1 -1 -2'), ('К Элизе', '-1 1 -1 1 -5 3 -2 -3 -5 5 2 -7 5 2 1 -8 12 -1 1 -1 1 -5 3 -2 -3 -5 5 2 -7 8 -1 -2 2 1 2 2 -9 10 -1 -2 -9 11 -2 -2 2 -2 -1 -7 8 -1 -2')]
+
+
+# class Par:
+# def __init__(self, a, b, y):
+# self.a = a
+# self.b = b
+# self.y = y * math.pi / 180
+
+# def p(self):
+# return 2 * (self.a + self.b)
+
+# def s(self):
+# return round(self.a * self.b * math.sin(self.y) * 2)
+
+
+# class Romb(Par):
+# def __init__(self, a, y):
+# self.a = a
+# self.b = a
+# self.y = y * math.pi / 180
+
+
+# class Rect(Par):
+# def __init__(self, a, b):
+# self.a = a
+# self.b = b
+
+# def s(self):
+# return self.a * self.b
+
+# def diag(self):
+# return round((self.a * self.a + self.b * self.b) ** 0.5, 3)
+
+
+# class Square(Rect):
+# def __init__(self, a):
+# self.a = a
+# self.b = a
+
+
+# ABCD = Par(6, 8, 90)
+# MNKL = Romb(7, 30)
+# QWER = Square(4)
+
+# print(QWER.p())
+# print(QWER.s())
+# print(QWER.diag())
