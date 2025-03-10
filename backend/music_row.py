@@ -1,8 +1,9 @@
-#НЕНУЖНОЕ#
-
 import librosa
-import numpy as np
+# import numpy as np
 import crepe
+import sqlite3
+from fuzzywuzzy import fuzz
+
 
 def frequency_to_note(frequency):
     """Определение названия ноты по частоте с помощью бинарного поиска"""
@@ -51,7 +52,6 @@ def frequency_to_note(frequency):
     elif insertion_point == len(frequencies):
         return note_names[-1]
 
-
     lower_index = insertion_point - 1
     higher_index = insertion_point
 
@@ -65,6 +65,19 @@ def frequency_to_note(frequency):
         return note_names[lower_index]
     else:
         return note_names[higher_index]
+
+
+def get_semitone(note):
+    notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+    note_name = note[:-1].upper()
+    octave = int(note[-1])
+
+    if note_name not in notes:
+        return None
+
+    semitones = notes.index(note_name)
+    total_semitones = (octave * 12) + semitones
+    return total_semitones
 
 
 class Music_row():
@@ -81,10 +94,10 @@ class Music_row():
 
     def extract_pitch_with_crepe(self):
         """Извлекает высоту тона с помощью CREPE"""
-        time, frequency, confidence, _ = crepe.predict(self.y, self.sr, viterbi=True, step_size=40)
+        time, frequency, confidence, _ = crepe.predict(self.y, self.sr, viterbi=True, step_size=20)
         self.frequency = frequency
         self.confidence = confidence
- 
+
     def filter_notes(self):
         """Фильтрация нот, избавление от помех"""
         self.segments = [0]
@@ -102,26 +115,12 @@ class Music_row():
                         extra_count = 1
                 else:
                     extra_count = 0
-                if extra_count == 10:
+                if extra_count == 7:
                     last_note = note_name
                     if self.segments[-1] != note_name:
                         self.segments.append(note_name)
         self.segments = self.segments[1:]
         return self.segments
-
-
-    def get_semitone(self, note):
-        notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        note_name = note[:-1].upper()
-        octave = int(note[-1])
-
-        if note_name not in notes:
-            return None
-
-        semitones = notes.index(note_name)
-        total_semitones = (octave * 12) + semitones
-        return total_semitones
-
 
     def calculate_semitone_differences(self):
         note_list = self.segments
@@ -132,30 +131,48 @@ class Music_row():
                 return None
             semitone_values.append(semitone)
 
-        differences = [semitone_values[i+1] - semitone_values[i]
-                     for i in range(len(semitone_values) - 1)]
+        differences = [semitone_values[i + 1] - semitone_values[i]
+                       for i in range(len(semitone_values) - 1)]
         return differences
-    
+
+
 def main():
     """Основная функция"""
-    music = Music_row()
+    music = Music_row('e.wav')
     music.load_and_preprocess()
     music.extract_pitch_with_crepe()
     music.filter_notes()
-    print(music.calculate_semitone_differences())
+    differences = music.calculate_semitone_differences()
 
+    connection = sqlite3.connect('instance/music_rows.db')
+    cursor = connection.cursor()
+    a = list(cursor.execute("SELECT name FROM Rows"))
+    b = list(cursor.execute("SELECT row FROM Rows"))
+    connection.close()
+    maxx = 0
+    familiar = ''
+    for i in range(5):
+        dif = b[i][0]
+        similarity = fuzz.partial_ratio(dif, differences)
+        if similarity > maxx:
+            maxx = similarity
+            familiar = a[i][0]
+
+    print(familiar)
     """Опционально: создание MIDI-файла"""
-    #midi_data = pretty_midi.PrettyMIDI()
-    #instrument = pretty_midi.Instrument(program=0)
+    # midi_data = pretty_midi.PrettyMIDI()
+    # instrument = pretty_midi.Instrument(program=0)
 
-    #for segment in quantized_segments:
-        #if segment["note"] != -1:
-            #note = pretty_midi.Note(velocity=100, pitch=int(segment["note"]), start=segment["start_time"], end=segment["end_time"])
-            #instrument.notes.append(note)
+    # for segment in quantized_segments:
+    # if segment["note"] != -1:
+    # note = pretty_midi.Note(velocity=100, pitch=int(segment["note"]), start=segment["start_time"], end=segment["end_time"])
+    # instrument.notes.append(note)
 
-    #midi_data.instruments.append(instrument)
-    #midi_data.write("output.mid")
-    #print("MIDI файл output.mid создан.")
+    # midi_data.instruments.append(instrument)
+    # midi_data.write("output.mid")
+    # print("MIDI файл output.mid создан.")
+
 
 if __name__ == "__main__":
     main()
+
