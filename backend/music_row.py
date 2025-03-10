@@ -136,9 +136,9 @@ class Music_row():
         return differences
 
 
-def main():
+def main(fi):
     """Основная функция"""
-    music = Music_row('e.wav')
+    music = Music_row(fi)
     music.load_and_preprocess()
     music.extract_pitch_with_crepe()
     music.filter_notes()
@@ -158,7 +158,7 @@ def main():
             maxx = similarity
             familiar = a[i][0]
 
-    print(familiar)
+    return familiar
     """Опционально: создание MIDI-файла"""
     # midi_data = pretty_midi.PrettyMIDI()
     # instrument = pretty_midi.Instrument(program=0)

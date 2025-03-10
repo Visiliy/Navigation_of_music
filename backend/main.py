@@ -169,7 +169,7 @@ def get_music2():
         content = request.files["audio"].read()
         AUDIO_FILE = f"media_files/audioToSave{randrange(1, 100000000)}.wav"
         #наташа
-        music_row.main(AUDIO_FILE)
+        melodiya = music_row.main(AUDIO_FILE)
         #
         with open(AUDIO_FILE, "wb") as fh:
             fh.write(content)
